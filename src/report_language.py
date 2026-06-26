@@ -6,7 +6,7 @@ from __future__ import annotations
 import re
 from typing import Any, Dict, Optional
 
-SUPPORTED_REPORT_LANGUAGES = ("zh", "en")
+SUPPORTED_REPORT_LANGUAGES = ("zh", "en", "vi")
 
 _REPORT_LANGUAGE_ALIASES = {
     "zh-cn": "zh",
@@ -22,6 +22,10 @@ _REPORT_LANGUAGE_ALIASES = {
     "en_us": "en",
     "en-gb": "en",
     "en_gb": "en",
+    "vi-vn": "vi",
+    "vi_vn": "vi",
+    "vietnam": "vi",
+    "vietnamese": "vi",
 }
 
 _OPERATION_ADVICE_CANONICAL_MAP = {
@@ -52,13 +56,13 @@ _OPERATION_ADVICE_CANONICAL_MAP = {
 }
 
 _OPERATION_ADVICE_TRANSLATIONS = {
-    "strong_buy": {"zh": "强烈买入", "en": "Strong Buy"},
-    "buy": {"zh": "买入", "en": "Buy"},
-    "hold": {"zh": "持有", "en": "Hold"},
-    "watch": {"zh": "观望", "en": "Watch"},
-    "reduce": {"zh": "减仓", "en": "Reduce"},
-    "sell": {"zh": "卖出", "en": "Sell"},
-    "strong_sell": {"zh": "强烈卖出", "en": "Strong Sell"},
+    "strong_buy": {"zh": "强烈买入", "en": "Strong Buy", "vi": "Mua mạnh"},
+    "buy": {"zh": "买入", "en": "Buy", "vi": "Mua"},
+    "hold": {"zh": "持有", "en": "Hold", "vi": "Nắm giữ"},
+    "watch": {"zh": "观望", "en": "Watch", "vi": "Quan sát"},
+    "reduce": {"zh": "减仓", "en": "Reduce", "vi": "Giảm tỷ trọng"},
+    "sell": {"zh": "卖出", "en": "Sell", "vi": "Bán"},
+    "strong_sell": {"zh": "强烈卖出", "en": "Strong Sell", "vi": "Bán mạnh"},
 }
 
 _TREND_PREDICTION_CANONICAL_MAP = {
@@ -88,11 +92,11 @@ _TREND_PREDICTION_CANONICAL_MAP = {
 }
 
 _TREND_PREDICTION_TRANSLATIONS = {
-    "strong_bullish": {"zh": "强烈看多", "en": "Strong Bullish"},
-    "bullish": {"zh": "看多", "en": "Bullish"},
-    "sideways": {"zh": "震荡", "en": "Sideways"},
-    "bearish": {"zh": "看空", "en": "Bearish"},
-    "strong_bearish": {"zh": "强烈看空", "en": "Strong Bearish"},
+    "strong_bullish": {"zh": "强烈看多", "en": "Strong Bullish", "vi": "Tăng mạnh"},
+    "bullish": {"zh": "看多", "en": "Bullish", "vi": "Tăng"},
+    "sideways": {"zh": "震荡", "en": "Sideways", "vi": "Đi ngang/Biến động"},
+    "bearish": {"zh": "看空", "en": "Bearish", "vi": "Giảm"},
+    "strong_bearish": {"zh": "强烈看空", "en": "Strong Bearish", "vi": "Giảm mạnh"},
 }
 
 _CONFIDENCE_LEVEL_CANONICAL_MAP = {
@@ -106,9 +110,9 @@ _CONFIDENCE_LEVEL_CANONICAL_MAP = {
 }
 
 _CONFIDENCE_LEVEL_TRANSLATIONS = {
-    "high": {"zh": "高", "en": "High"},
-    "medium": {"zh": "中", "en": "Medium"},
-    "low": {"zh": "低", "en": "Low"},
+    "high": {"zh": "高", "en": "High", "vi": "Cao"},
+    "medium": {"zh": "中", "en": "Medium", "vi": "Trung bình"},
+    "low": {"zh": "低", "en": "Low", "vi": "Thấp"},
 }
 
 _CHIP_HEALTH_CANONICAL_MAP = {
@@ -121,9 +125,9 @@ _CHIP_HEALTH_CANONICAL_MAP = {
 }
 
 _CHIP_HEALTH_TRANSLATIONS = {
-    "healthy": {"zh": "健康", "en": "Healthy"},
-    "average": {"zh": "一般", "en": "Average"},
-    "caution": {"zh": "警惕", "en": "Caution"},
+    "healthy": {"zh": "健康", "en": "Healthy", "vi": "Khỏe"},
+    "average": {"zh": "一般", "en": "Average", "vi": "Trung bình"},
+    "caution": {"zh": "警惕", "en": "Caution", "vi": "Cảnh giác"},
 }
 
 _BIAS_STATUS_CANONICAL_MAP = {
@@ -138,29 +142,33 @@ _BIAS_STATUS_CANONICAL_MAP = {
 }
 
 _BIAS_STATUS_TRANSLATIONS = {
-    "safe": {"zh": "安全", "en": "Safe"},
-    "caution": {"zh": "警戒", "en": "Caution"},
-    "danger": {"zh": "危险", "en": "Danger"},
+    "safe": {"zh": "安全", "en": "Safe", "vi": "An toàn"},
+    "caution": {"zh": "警戒", "en": "Caution", "vi": "Cảnh báo"},
+    "danger": {"zh": "危险", "en": "Danger", "vi": "Nguy hiểm"},
 }
 
 _PLACEHOLDER_BY_LANGUAGE = {
     "zh": "待补充",
     "en": "TBD",
+    "vi": "Chờ bổ sung",
 }
 
 _UNKNOWN_BY_LANGUAGE = {
     "zh": "未知",
     "en": "Unknown",
+    "vi": "Chưa rõ",
 }
 
 _NO_DATA_BY_LANGUAGE = {
     "zh": "数据缺失",
     "en": "Data unavailable",
+    "vi": "Thiếu dữ liệu",
 }
 
 _CHIP_UNAVAILABLE_BY_LANGUAGE = {
     "zh": "筹码分布未启用或数据源暂不可用，未纳入筹码判断。",
     "en": "Chip distribution is disabled or temporarily unavailable; chip signals were not used.",
+    "vi": "Phân bổ chip chưa bật hoặc nguồn dữ liệu không khả dụng, không đưa vào đánh giá chip.",
 }
 
 _CHIP_PLACEHOLDER_EXACT = {
@@ -197,6 +205,7 @@ _CHIP_UNAVAILABLE_REASON_KEYS = (
 _GENERIC_STOCK_NAME_BY_LANGUAGE = {
     "zh": "待确认股票",
     "en": "Unnamed Stock",
+    "vi": "Cổ phiếu chưa rõ tên",
 }
 
 _REPORT_LABELS: Dict[str, Dict[str, str]] = {
@@ -415,6 +424,114 @@ _REPORT_LABELS: Dict[str, Dict[str, str]] = {
         "board_change_pct_label": "Change %",
         "leading_board_label": "Leading",
         "lagging_board_label": "Lagging",
+    },
+    "vi": {
+        "dashboard_title": "Bảng điều khiển quyết định",
+        "brief_title": "Bản tin quyết định",
+        "analyzed_prefix": "Đã phân tích",
+        "stock_unit": "mã cổ phiếu",
+        "stock_unit_compact": "mã",
+        "buy_label": "Mua",
+        "watch_label": "Quan sát",
+        "sell_label": "Bán",
+        "summary_heading": "Tóm tắt kết quả phân tích",
+        "info_heading": "Thông tin quan trọng",
+        "sentiment_summary_label": "Tâm lý thị trường",
+        "earnings_outlook_label": "Kỳ vọng kết quả kinh doanh",
+        "risk_alerts_label": "Cảnh báo rủi ro",
+        "positive_catalysts_label": "Yếu tố xúc tác tích cực",
+        "latest_news_label": "Tin tức mới nhất",
+        "core_conclusion_heading": "Kết luận cốt lõi",
+        "one_sentence_label": "Quyết định rút gọn",
+        "time_sensitivity_label": "Tính hiệu lực thời gian",
+        "default_time_sensitivity": "Trong tuần này",
+        "position_status_label": "Trạng thái vị thế",
+        "action_advice_label": "Khuyến nghị hành động",
+        "no_position_label": "Người chưa có vị thế",
+        "has_position_label": "Người đang nắm giữ",
+        "continue_holding": "Tiếp tục nắm giữ",
+        "market_snapshot_heading": "Diễn biến trong ngày",
+        "close_label": "Đóng cửa",
+        "prev_close_label": "Đóng cửa hôm trước",
+        "open_label": "Mở cửa",
+        "high_label": "Cao nhất",
+        "low_label": "Thấp nhất",
+        "change_pct_label": "Tỷ lệ tăng giảm",
+        "change_amount_label": "Mức tăng giảm",
+        "amplitude_label": "Biên độ",
+        "volume_label": "Khối lượng GD",
+        "amount_label": "Giá trị GD",
+        "current_price_label": "Giá hiện tại",
+        "volume_ratio_label": "Tỷ lệ khối lượng",
+        "turnover_rate_label": "Tỷ lệ quay vòng",
+        "source_label": "Nguồn dữ liệu",
+        "data_perspective_heading": "Thống kê dữ liệu",
+        "ma_alignment_label": "Sắp xếp đường MA",
+        "bullish_alignment_label": "Xu hướng tăng",
+        "yes_label": "Có",
+        "no_label": "Không",
+        "trend_strength_label": "Sức mạnh xu hướng",
+        "price_metrics_label": "Chỉ báo giá",
+        "ma5_label": "MA5",
+        "ma10_label": "MA10",
+        "ma20_label": "MA20",
+        "bias_ma5_label": "Độ lệch (MA5)",
+        "support_level_label": "Ngưỡng hỗ trợ",
+        "resistance_level_label": "Ngưỡng kháng cự",
+        "chip_label": "Dòng tiền chip",
+        "phase_decision_heading": "Hành lang bảo vệ quyết định trong phiên",
+        "action_window_label": "Cửa sổ hành động",
+        "immediate_action_label": "Hành động hiện tại",
+        "watch_conditions_label": "Điều kiện quan sát",
+        "next_check_time_label": "Lần kiểm tra tiếp theo",
+        "confidence_reason_label": "Lý do độ tin cậy",
+        "data_limitations_label": "Giới hạn dữ liệu",
+        "battle_plan_heading": "Kế hoạch giao dịch",
+        "ideal_buy_label": "Điểm mua lý tưởng",
+        "secondary_buy_label": "Điểm mua thứ cấp",
+        "stop_loss_label": "Điểm dừng lỗ",
+        "take_profit_label": "Giá mục tiêu",
+        "suggested_position_label": "Tỷ trọng đề xuất",
+        "entry_plan_label": "Chiến lược giải ngân",
+        "risk_control_label": "Chiến lược kiểm soát rủi ro",
+        "checklist_heading": "Danh sách kiểm tra (Checklist)",
+        "failed_checks_heading": "Các mục kiểm tra không đạt",
+        "history_compare_heading": "So sánh tín hiệu lịch sử",
+        "time_label": "Thời gian",
+        "score_label": "Điểm số",
+        "advice_label": "Khuyến nghị",
+        "trend_label": "Xu hướng",
+        "generated_at_label": "Thời điểm tạo báo cáo",
+        "report_time_label": "Thời gian tạo",
+        "no_results": "Không có kết quả phân tích",
+        "report_title": "Báo cáo phân tích cổ phiếu",
+        "avg_score_label": "Điểm trung bình",
+        "action_points_heading": "Điểm giao dịch cụ thể",
+        "position_advice_heading": "Khuyến nghị vị thế",
+        "analysis_model_label": "Mô hình phân tích",
+        "not_investment_advice": "Do AI tạo, chỉ mang tính chất tham khảo, không cấu thành lời khuyên đầu tư",
+        "details_report_hint": "Bản báo cáo chi tiết tại",
+        "financial_summary_heading": "Tóm tắt tài chính",
+        "report_date_label": "Kỳ báo cáo",
+        "revenue_label": "Doanh thu hoạt động",
+        "net_profit_label": "Lợi nhuận ròng công ty mẹ",
+        "operating_cash_flow_label": "Dòng tiền từ HĐKD",
+        "roe_label": "ROE",
+        "revenue_yoy_label": "Tăng trưởng doanh thu YoY",
+        "net_profit_yoy_label": "Tăng trưởng lợi nhuận YoY",
+        "gross_margin_label": "Biên lợi nhuận gộp",
+        "shareholder_return_heading": "Lợi ích cổ đông",
+        "ttm_cash_dividend_label": "Cổ tức tiền mặt 12 tháng gần nhất/CP (trước thuế)",
+        "ttm_event_count_label": "Số lần chia cổ tức 12 tháng gần nhất",
+        "ttm_dividend_yield_label": "Tỷ suất cổ tức TTM",
+        "latest_ex_dividend_label": "Ngày giao dịch không hưởng quyền gần nhất",
+        "related_boards_heading": "Ngành liên quan",
+        "board_name_label": "Ngành/Nhóm",
+        "board_type_label": "Loại",
+        "board_status_label": "Hiệu suất nhóm",
+        "board_change_pct_label": "Tăng giảm nhóm",
+        "leading_board_label": "Dẫn dắt",
+        "lagging_board_label": "Kéo lùi",
     },
 }
 

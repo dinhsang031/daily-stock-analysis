@@ -55,6 +55,10 @@ def detect_market(stock_code: Optional[str]) -> str:
     if re.match(r'^[A-Z]{1,5}(\.[A-Z]{1,2})?$', code):
         return "us"
 
+    # Vietnam stocks: suffix .VN
+    if code.endswith(".VN"):
+        return "vn"
+
     # Default: A-shares (6-digit numbers like 600519, 000001)
     return "cn"
 
@@ -85,6 +89,10 @@ _MARKET_ROLES = {
     "tw": {
         "zh": "台股",
         "en": "Taiwan stock",
+    },
+    "vn": {
+        "zh": "越股",
+        "en": "Vietnam stock",
     },
 }
 
@@ -154,6 +162,18 @@ _MARKET_GUIDELINES = {
             "price limit; do not apply China A-share-specific concepts such as Northbound flows or Dragon Tiger lists."
         ),
     },
+    "vn": {
+        "zh": (
+            "- 本次分析对象为 **越股**（越南交易所上市股票，必须带 `.VN` 后缀）。\n"
+            "- 请按越南市场语境分析，关注越南盾（VND）汇率、越南国家银行政策与越南交易制度；"
+            "不要套用 A 股专属的涨跌停、北向资金、龙虎榜等概念。"
+        ),
+        "en": (
+            "- This analysis covers a **Vietnam stock** (listed on HOSE/HNX exchanges with `.VN` suffix).\n"
+            "- Use Vietnam-market context: VND FX, State Bank of Vietnam policy, local trading rules; "
+            "do not apply China A-share-specific concepts such as Northbound flows or Dragon Tiger lists."
+        ),
+    },
 }
 
 
@@ -162,13 +182,13 @@ def get_market_role(stock_code: Optional[str], lang: str = "zh") -> str:
 
     Args:
         stock_code: The stock code being analyzed.
-        lang: 'zh' or 'en'.
+        lang: 'zh' or 'en' or 'vi'.
 
     Returns:
         Role string like 'A 股投资分析' or 'US stock investment analysis'.
     """
     market = detect_market(stock_code)
-    lang_key = "en" if lang == "en" else "zh"
+    lang_key = "en" if lang in ("en", "vi") else "zh"
     return _MARKET_ROLES.get(market, _MARKET_ROLES["cn"])[lang_key]
 
 
@@ -177,11 +197,11 @@ def get_market_guidelines(stock_code: Optional[str], lang: str = "zh") -> str:
 
     Args:
         stock_code: The stock code being analyzed.
-        lang: 'zh' or 'en'.
+        lang: 'zh' or 'en' or 'vi'.
 
     Returns:
         Multi-line string with market-specific guidelines.
     """
     market = detect_market(stock_code)
-    lang_key = "en" if lang == "en" else "zh"
+    lang_key = "en" if lang in ("en", "vi") else "zh"
     return _MARKET_GUIDELINES.get(market, _MARKET_GUIDELINES["cn"])[lang_key]

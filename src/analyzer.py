@@ -220,11 +220,11 @@ def _legacy_audit_marker_specs(
     add("stock_code", code)
     add("stock_name", stock_name)
     add("analysis_date", context.get("date"))
-    add("market_phase", "## Market Phase Context" if report_language == "en" else "## 市场阶段上下文")
-    add("daily_market_context", "## Daily Market Context" if report_language == "en" else "## 大盘环境摘要")
+    add("market_phase", "## Market Phase Context" if report_language in ("en", "vi") else "## 市场阶段上下文")
+    add("daily_market_context", "## Daily Market Context" if report_language in ("en", "vi") else "## 大盘环境摘要")
     add("analysis_context_pack", analysis_context_pack_summary)
-    add("quote", "## 📈 技术面数据")
-    add("news_context", "## 📰 舆情情报" if news_context else None)
+    add("quote", "## 📈 Technical Data" if report_language in ("en", "vi") else "## 📈 技术面数据")
+    add("news_context", "## 📰 News Flow" if report_language in ("en", "vi") else "## 📰 舆情情报" if news_context else None)
     return markers
 
 
@@ -367,21 +367,29 @@ def apply_placeholder_fill(result: "AnalysisResult", missing_fields: List[str]) 
         "dashboard.phase_decision.action_window": (
             "Model did not provide a phase action window"
             if report_language == "en"
+            else "Mô hình chưa cung cấp cửa sổ hành động trong phiên"
+            if report_language == "vi"
             else "模型未提供阶段化行动窗口"
         ),
         "dashboard.phase_decision.immediate_action": (
             "Model did not provide a phase-aware immediate action"
             if report_language == "en"
+            else "Mô hình chưa cung cấp hành động tức thời trong phiên"
+            if report_language == "vi"
             else "模型未提供阶段化即时动作"
         ),
         "dashboard.phase_decision.next_check_time": (
             "Model did not provide a next check point"
             if report_language == "en"
+            else "Mô hình chưa cung cấp thời điểm kiểm tra tiếp theo"
+            if report_language == "vi"
             else "模型未提供下一次检查点"
         ),
         "dashboard.phase_decision.confidence_reason": (
             "Model did not provide a phase confidence rationale"
             if report_language == "en"
+            else "Mô hình chưa cung cấp lý do độ tin cậy trong phiên"
+            if report_language == "vi"
             else "模型未提供阶段化置信度理由"
         ),
     }
@@ -3725,6 +3733,16 @@ class GeminiAnalyzer:
 - This includes `stock_name`, `trend_prediction`, `operation_advice`, `confidence_level`, all nested dashboard text, checklist items, and every summary field.
 - Use the common English company name when you are confident. If not, keep the listed company name rather than inventing one.
 - When data is missing, explain it in English instead of Chinese.
+"""
+        elif report_language == "vi":
+            prompt += f"""
+
+### Yêu cầu về ngôn ngữ đầu ra (Ưu tiên cao nhất)
+- Giữ nguyên tất cả các khóa JSON như định nghĩa ở trên; không dịch tên khóa.
+- `decision_type` phải giữ nguyên là `buy`, `hold`, hoặc `sell`.
+- Tất cả các giá trị văn bản mà người dùng có thể đọc được trong JSON phải bằng tiếng Việt.
+- Điều này bao gồm `stock_name`, `trend_prediction`, `operation_advice`, `confidence_level`, tất cả văn bản trong bảng điều khiển lồng nhau (dashboard), các mục trong danh sách kiểm tra (checklist) và mọi trường tóm tắt.
+- Khi thiếu dữ liệu, hãy giải thích trực tiếp bằng tiếng Việt (ví dụ: "{no_data_text}, không thể đánh giá").
 """
         else:
             prompt += f"""

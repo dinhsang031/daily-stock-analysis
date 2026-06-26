@@ -48,21 +48,37 @@ _PUBLIC_SOURCE_LABELS_EN = {
     "evaluator_snapshot": "evaluator snapshot",
     "legacy_text": "legacy text",
 }
+_PUBLIC_SOURCE_LABELS_VI = {
+    "alert_trigger_market_context": "ngữ cảnh kích hoạt cảnh báo",
+    "analysis_history_snapshot": "ảnh chụp phân tích gần đây",
+    "evaluator_snapshot": "ảnh chụp bộ đánh giá",
+    "legacy_text": "văn bản lịch sử",
+}
 _MARKET_STATUS_PREFIX = {
     "zh": "市场状态",
     "en": "Market status",
+    "vi": "Trạng thái thị trường",
 }
 _MARKET_LABELS_ZH = {
     "cn": "A股",
     "hk": "港股",
     "us": "美股",
     "tw": "台股",
+    "vn": "越股",
 }
 _MARKET_LABELS_EN = {
     "cn": "A-shares",
     "hk": "Hong Kong",
     "us": "US",
     "tw": "Taiwan",
+    "vn": "Vietnam",
+}
+_MARKET_LABELS_VI = {
+    "cn": "Cổ phiếu A (Trung Quốc)",
+    "hk": "Cổ phiếu Hồng Kông",
+    "us": "Cổ phiếu Mỹ",
+    "tw": "Cổ phiếu Đài Loan",
+    "vn": "Cổ phiếu Việt Nam",
 }
 _PHASE_LABELS_ZH = {
     "premarket": "盘前",
@@ -81,6 +97,15 @@ _PHASE_LABELS_EN = {
     "postmarket": "Post-market",
     "non_trading": "Non-trading",
     "unknown": "Unknown phase",
+}
+_PHASE_LABELS_VI = {
+    "premarket": "Khớp lệnh định kỳ mở cửa (Pre-market)",
+    "intraday": "Trong phiên GD",
+    "lunch_break": "Nghỉ trưa",
+    "closing_auction": "Khớp lệnh định kỳ đóng cửa (ATC)",
+    "postmarket": "Sau giờ GD",
+    "non_trading": "Ngày nghỉ lễ/cuối tuần",
+    "unknown": "Chưa rõ giai đoạn",
 }
 
 
@@ -190,7 +215,7 @@ def format_public_phase_pack_excerpt(
     overview = _as_mapping(analysis_context_pack_overview)
     if not phase_summary and not overview:
         return ""
-    lang = "en" if str(report_language or "").lower().startswith("en") else "zh"
+    lang = "vi" if str(report_language or "").lower().startswith("vi") else "en" if str(report_language or "").lower().startswith("en") else "zh"
     source_label = _source_label(source, lang)
 
     lines: List[str] = []
@@ -209,6 +234,17 @@ def format_public_phase_pack_excerpt(
             lines.append("- " + " | ".join(parts))
             if phase_summary.get("is_partial_bar") is True:
                 lines.append("- partial-bar warning: intraday data may be incomplete")
+        elif lang == "vi":
+            parts = [f"Giai đoạn: {phase}"]
+            if market:
+                parts.append(f"Thị trường: {market}")
+            if trigger_source:
+                parts.append(f"Nguồn kích hoạt: {trigger_source}")
+            if source_label:
+                parts.append(f"Nguồn tóm tắt: {source_label}")
+            lines.append("- " + " | ".join(parts))
+            if phase_summary.get("is_partial_bar") is True:
+                lines.append("- Cảnh báo nến chưa đóng: Dữ liệu trong phiên có thể chưa đầy đủ")
         else:
             parts = [f"阶段：{phase}"]
             if market:
@@ -225,10 +261,12 @@ def format_public_phase_pack_excerpt(
     if isinstance(quality, Mapping):
         level = _safe_text(quality.get("level"))
         if level:
-            lines.append(f"- {'data quality' if lang == 'en' else '数据质量'}: {level}")
+            label = 'Chất lượng dữ liệu' if lang == 'vi' else 'data quality' if lang == 'en' else '数据质量'
+            lines.append(f"- {label}: {level}")
         limitations = _list_strings(quality.get("limitations"), limit=2)
         for item in limitations:
-            lines.append(f"- {'limitation' if lang == 'en' else '限制'}: {item}")
+            label = 'Giới hạn' if lang == 'vi' else 'limitation' if lang == 'en' else '限制'
+            lines.append(f"- {label}: {item}")
 
     return "\n".join(lines)
 
@@ -246,18 +284,18 @@ def format_public_market_status_line(
     if phase is None:
         return ""
 
-    lang = "en" if str(report_language or "").lower().startswith("en") else "zh"
-    phase_labels = _PHASE_LABELS_EN if lang == "en" else _PHASE_LABELS_ZH
-    market_labels = _MARKET_LABELS_EN if lang == "en" else _MARKET_LABELS_ZH
+    lang = "vi" if str(report_language or "").lower().startswith("vi") else "en" if str(report_language or "").lower().startswith("en") else "zh"
+    phase_labels = _PHASE_LABELS_VI if lang == "vi" else _PHASE_LABELS_EN if lang == "en" else _PHASE_LABELS_ZH
+    market_labels = _MARKET_LABELS_VI if lang == "vi" else _MARKET_LABELS_EN if lang == "en" else _MARKET_LABELS_ZH
     phase_label = phase_labels.get(phase, phase)
     market = _safe_text(phase_summary.get("market"))
     market_key = market.lower()
     if market_key:
-        market_label = market_labels.get(market_key, market.upper() if lang == "en" else market)
+        market_label = market_labels.get(market_key, market.upper() if lang in ("en", "vi") else market)
         value = f"{market_label} · {phase_label}"
     else:
         value = phase_label
-    separator = ": " if lang == "en" else "："
+    separator = ": " if lang in ("en", "vi") else "："
     return f"{_MARKET_STATUS_PREFIX[lang]}{separator}{value}"
 
 
@@ -282,7 +320,7 @@ def _source_label(value: Any, lang: str) -> Optional[str]:
     source = _safe_text(value)
     if not source:
         return None
-    labels = _PUBLIC_SOURCE_LABELS_EN if lang == "en" else _PUBLIC_SOURCE_LABELS_ZH
+    labels = _PUBLIC_SOURCE_LABELS_VI if lang == "vi" else _PUBLIC_SOURCE_LABELS_EN if lang == "en" else _PUBLIC_SOURCE_LABELS_ZH
     return labels.get(source, source)
 
 

@@ -525,6 +525,10 @@ def _persist_market_review_history(
             stock_name = "Market Review"
             operation_advice = "View review"
             trend_prediction = "Market review"
+        elif report_language == "vi":
+            stock_name = "Nhận định thị trường"
+            operation_advice = "Xem nhận định"
+            trend_prediction = "Nhận định thị trường"
         else:
             stock_name = "大盘复盘"
             operation_advice = "查看复盘"
@@ -628,7 +632,7 @@ def _build_market_review_context_overview(
         metadata["trigger_source"] = diagnostic_snapshot.get("trigger_source") or metadata["trigger_source"]
         metadata["scope"] = diagnostic_snapshot.get("scope") or metadata["scope"]
 
-    label = "Market review" if report_language == "en" else "大盘复盘"
+    label = "Market review" if report_language == "en" else "Nhận định thị trường" if report_language == "vi" else "大盘复盘"
     return {
         "pack_version": "market_review/1.0",
         "created_at": datetime.now().isoformat(),
@@ -665,4 +669,4 @@ def _summarize_market_review(review_report: str, report_language: str) -> str:
         text = line.strip().lstrip("#").strip()
         if text and not text.startswith("---") and not text.startswith(">"):
             return text[:200]
-    return "Market review report generated." if report_language == "en" else "大盘复盘报告已生成。"
+    return "Market review report generated." if report_language == "en" else "Báo cáo nhận định thị trường đã được tạo." if report_language == "vi" else "大盘复盘报告已生成。"
